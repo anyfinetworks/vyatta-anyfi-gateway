@@ -26,16 +26,16 @@ For a more complete description see the
     service
       anyfi
         gateway <NAME>
-          authentication
+          security
             ciphers <tkip|ccmp|both>
-            mode <psk|eap>
+            authentication <psk|eap>
             protocol <wpa|wpa2|both|open>
             passphrase <txt>
             radius-server <ipv4>
+            radius-secret <txt>
+            rekey-interval <int>
+            strict-rekey
           bridge <intf>
-          local-ap <ipv4>
-          rekey-interval <int>
-          strict-rekey
           ssid <txt>
 
 # Operational Commands

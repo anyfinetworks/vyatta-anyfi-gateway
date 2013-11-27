@@ -1,6 +1,6 @@
 tag:
 type: txt
-help: AnyFi gateway service
+help: AnyFi Gateway
 end:
      if [ ${COMMIT_ACTION} == DELETE ]; then
          sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid) 
@@ -9,7 +9,12 @@ end:
              sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
          fi
 
+         if [ -z "$VAR(controller/@)" ]; then
+            echo "Error configuring AnyFi Gateway: Must specify Controller"
+            exit 1
+         fi
+
          sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/myfid-$VAR(@).conf || exit 1 
-         sudo /usr/sbin/myfid --accept-license -s anyfi.net -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
+         sudo /usr/sbin/myfid --accept-license -s $VAR(controller/@) -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
      fi
 

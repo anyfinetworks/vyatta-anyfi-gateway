@@ -32,7 +32,7 @@ my $conf_dir = "/etc/";
 sub error
 {
     my $msg = shift;
-    print "Error configuring AnyFi gateway: $msg\n";
+    print "Error configuring AnyFi Gateway: $msg\n";
     exit(1);
 }
 
@@ -46,7 +46,7 @@ sub generate_config
 
     # Bridge
     my $bridge = $config->returnValue("bridge");
-    if( ! check_bridge($bridge) )
+    if( (! $bridge) || (! check_bridge($bridge)) )
     {
         error("Bridge $bridge does not exist");
     }
@@ -66,38 +66,33 @@ sub generate_config
         error("Must specify SSID");
     }
 
-    # Local AP
-    my $local_ap = $config->returnValue("local-ap");
-    if( $local_ap )
-    {
-        $config_string .= "local_ap = $local_ap\n";
-    }
-
     # Rekey interval
-    my $rekey_interval = $config->returnValue("rekey-interval");
+    my $rekey_interval = $config->returnValue("security rekey-interval");
     if( $rekey_interval )
     {
         $config_string .= "group_rekey = $rekey_interval\n";
     }
 
     # Strict rekey
-    if( $config->exists("strict-rekey") )
+    if( $config->exists("security strict-rekey") )
     {
         $config_string .= "strict_rekey = 1\n";
     }
 
     # Authentication settings
-    my $auth_mode = $config->returnValue("authentication mode");
-    my $auth_proto = $config->returnValue("authentication protocol");
+    my $auth_mode = $config->returnValue("security authentication");
+    my $auth_proto = $config->returnValue("security protocol");
 
-    if( (! $auth_proto) || (! $auth_mode) )
+    if( $auth_proto eq 'open' )
     {
-        error("Must specify authentication mode and protocol");
+        if( $auth_mode )
+        {
+            error("Can't specify authentication mode if protocol is \"open\"");
+        }
     }
-
-    if( ($auth_proto eq 'open') && ($auth_mode) )
+    elsif( (! $auth_proto) || (! $auth_mode) )
     {
-        error("Can't specify authentication mode if authentication protocol is \"open\"");
+        error("Must specify authenticaton mode and protocol");
     }
 
     # $auth_proto is later used in ciphers
@@ -110,15 +105,19 @@ sub generate_config
         $auth_proto = 'wpa+rsn';
     }
     $config_string .= "auth_proto = $auth_proto\n";
-    $config_string .= "auth_mode = $auth_mode\n";
+
+    if( $auth_proto ne 'open' )
+    {
+      $config_string .= "auth_mode = $auth_mode\n";
+    }
 
     # Ciphers
-    my $ciphers = $config->returnValue("authentication ciphers");
+    my $ciphers = $config->returnValue("security ciphers");
     if( $ciphers )
     {
         if( $auth_proto eq 'open' )
         {
-            error("Can't specify ciphers if authentication protocol is \"open\"");
+            error("Can't specify ciphers if security protocol is \"open\"");
         }
 
         if( $ciphers eq 'both' )
@@ -137,27 +136,35 @@ sub generate_config
     }
 
     # Passphrase
-    my $passphrase = $config->returnValue("authentication passphrase");
+    my $passphrase = $config->returnValue("security passphrase");
     if( $passphrase )
     {
         if( $auth_mode ne 'psk' )
         {
-            error("Can't specify passphrase if authentication mode is not 'psk'");
+            error("Can't specify passphrase if security mode is not 'psk'");
         }
 
         $config_string .= "passphrase = $passphrase\n";
     }
 
     # RADIUS server
-    my $radius_server = $config->returnValue("authentication radius-server");
+    my $radius_server = $config->returnValue("security radius-server");
     if( $radius_server )
     {
         if( $auth_mode ne 'eap' )
         {
-            error("Can't specify RADIUS server if authentication mode is not 'eap'");
+            error("Can't specify RADIUS server if security mode is not 'eap'");
         }
 
         $config_string .= "radius_auth_server = $radius_server\n";
+
+        my $radius_secret = $config->returnValue("security radius-secret");
+        if( (! $radius_secret) )
+        {
+            error("Must specify RADIUS secret");
+        }
+
+        $config_string .= "radius_auth_secret = $radius_secret\n";
     }
 
     return($config_string);
