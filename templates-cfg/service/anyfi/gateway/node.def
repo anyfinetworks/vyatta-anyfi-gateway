@@ -1,0 +1,15 @@
+tag:
+type: txt
+help: AnyFi gateway service
+end:
+     if [ ${COMMIT_ACTION} == DELETE ]; then
+         sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid) 
+     else
+         if [ -f /var/myfid-$VAR(@).pid ]; then
+             sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
+         fi
+
+         sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/myfid-$VAR(@).conf || exit 1 
+         sudo /usr/sbin/myfid --accept-license -s anyfi.net -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
+     fi
+

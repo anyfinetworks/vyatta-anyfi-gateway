@@ -1,0 +1,8 @@
+type: txt
+help: Authentication type
+val_help: open; Open authentication
+val_help: wpa; WPA authentication only
+val_help: wpa2; WPA2 authentication only
+val_help: both; Both WPA and WPA2
+allowed: echo "open wpa wpa2 both"
+syntax:expression: pattern $VAR(@) "(open|wpa|wpa2|both)"

@@ -1,0 +1,6 @@
+type: txt
+help: Authentication mode
+allowed: echo "psk eap"
+syntax:expression: pattern $VAR(@) "(psk|eap)"
+val_help: psk; Pre-shared key (passpharse)
+val_help: eap; EAP authentication
