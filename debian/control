@@ -1,0 +1,16 @@
+Source: vyatta-anyfi-gateway
+Section: contrib/net
+Priority: extra
+Maintainer: AnyFi Networks <eng@anyfinetworks.com>
+Standards-Version: 3.9.1
+Build-Depends: debhelper (>= 5), autotools-dev, autoconf
+
+Package: vyatta-anyfi-gateway
+Architecture: all
+Depends: vyatta-cfg-system,
+ vyatta-cfg,
+ vyatta-op,
+ ${misc:Depends}
+Replaces: vyatta-anyfi-gateway
+Description: Vyatta AnyFi gateway integration
+ AnyFi gateway service integration for Vyatta/EdgeOS
