@@ -23,30 +23,20 @@ For a more complete description see the
 
 # Configuration Commands
 
-
-[See local wireless interface configuration](http://mirror.symnds.com/software/vyatta/vc6.0/docs/Vyatta_LANInterfacesRef_R6.0_v01.pdf)
-as a comparison. Only difference here is that we don't have a channel and that
-there can be any number of physical access points behind an interface, i.e. in
-IEEE parlase an anyfi interface represents a potentially large number of Basic
-Service Sets (BSS) all part of the same Extended Service Set (ESS).
-
-    interfaces
-        anyfi <txt: INTERFACE NAME>
-            description <txt: DESCRIPTION>
-            ssid <txt: SSID>
-            bridge-group
-                ...
-            qos-policy
-                ...
-            firewall
-                ...
-            security
-                ...
-                wpa-mixed
-                    ...
-                group-rekey
-                    interval <int: INTERVAL IN SECONDS>
-                    strict-rekey
+    service
+      anyfi
+        gateway <NAME>
+          authentication
+            ciphers <tkip|ccmp|both>
+            mode <psk|eap>
+            protocol <wpa|wpa2|both|open>
+            passphrase <txt>
+            radius-server <ipv4>
+          bridge <intf>
+          local-ap <ipv4>
+          rekey-interval <int>
+          strict-rekey
+          ssid <txt>
 
 # Operational Commands
 
