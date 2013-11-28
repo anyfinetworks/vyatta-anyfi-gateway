@@ -16,7 +16,9 @@ end:
          fi
 
          sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/myfid-$VAR(@).conf || exit 1 
-         sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
+         if [ -f /var/run/myfid-$VAR(@).pid ]; then
+             sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
+         fi
          sudo /usr/sbin/myfid --accept-license -s $VAR(controller/@) -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
      fi
 
