@@ -4,6 +4,7 @@ help: AnyFi Gateway
 end:
      if [ ${COMMIT_ACTION} == DELETE ]; then
          sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid) 
+         sudo rm -f /etc/myfid-$VAR(@).conf
      else
          if [ -f /var/myfid-$VAR(@).pid ]; then
              sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
