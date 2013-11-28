@@ -90,16 +90,18 @@ sub generate_config
     my $auth_mode = $config->returnValue("security authentication");
     my $auth_proto = $config->returnValue("security protocol");
 
-    if( $auth_proto eq 'open' )
+    if( !$auth_proto )
     {
-        if( $auth_mode )
-        {
-            error("Can't specify authentication mode if protocol is \"open\"");
-        }
+        error("Must specify authentication protocol");
     }
-    elsif( (! $auth_proto) || (! $auth_mode) )
+    elsif( !$auth_mode )
     {
-        error("Must specify authenticaton mode and protocol");
+        error("Must specify authentication mode");
+    }
+
+    if( ($auth_proto eq 'open') && ($auth_mode) )
+    {
+            error("Can't specify authentication mode if protocol is \"open\"");
     }
 
     # $auth_proto is later used in ciphers
