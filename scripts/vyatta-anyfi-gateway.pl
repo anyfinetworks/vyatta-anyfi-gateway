@@ -67,6 +67,13 @@ sub generate_config
         error("Must specify SSID");
     }
 
+    # UUID
+    my $uuid = $config->returnValue("uuid");
+    if( $uuid )
+    {
+        $config_string .= "uuid = $uuid\n";
+    }
+
     # Rekey interval
     my $rekey_interval = $config->returnValue("security rekey-interval");
     if( $rekey_interval )

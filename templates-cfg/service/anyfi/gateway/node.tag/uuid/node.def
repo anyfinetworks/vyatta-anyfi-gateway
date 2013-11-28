@@ -1,0 +1,3 @@
+type: txt
+help: Extended Service Set UUID
+val_help: <hhhh-hh-hh-hh-hhhhhh>; 128-bit UUID in hexadecimal
