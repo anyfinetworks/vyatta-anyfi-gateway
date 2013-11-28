@@ -1,4 +1,5 @@
 tag:
+priority: 999
 type: txt
 help: AnyFi Gateway
 end:
