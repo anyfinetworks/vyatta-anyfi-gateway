@@ -46,21 +46,15 @@ sub generate_config
 
     # Bridge
     my $bridge = $config->returnValue("bridge");
-    if( $bridge )
+    if(! $bridge )
     {
-        if( check_bridge($bridge) )
-        {
-            $config_string .= "bridge = $bridge\n";
-        }
-        else
-        {
-            error("Bridge $bridge does not exist");
-        }
+        error("Must specify Bridge");
     }
-    else
+    elsif (! check_bridge($bridge) )
     {
-        error("Must specify bridge");
+        error("Bridge $bridge does not exist");
     }
+    $config_string .= "bridge = $bridge\n";
 
     # SSID
     my $ssid = $config->returnValue("ssid");
