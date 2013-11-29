@@ -1,0 +1,3 @@
+help: Show specified AnyFi gateway information
+allowed: cli-shell-api listNodes service anyfi gateway|sed -re s/\'//g
+run: echo qqqqqq

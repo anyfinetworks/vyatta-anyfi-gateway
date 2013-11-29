@@ -1,0 +1,2 @@
+help: Show service set information
+run: /usr/sbin/myfidctl -c /var/run/myfid-$4.pid sta.stations
