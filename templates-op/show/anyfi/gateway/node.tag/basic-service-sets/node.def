@@ -1,2 +1,2 @@
-help: Show service set information
-run: /usr/sbin/myfidctl -c /var/run/myfid-$4.pid vap.vaps
+help: Show connected IEEE 802.11 Basic Service Sets
+run: sudo /usr/sbin/myfidctl -c /var/run/myfidsock.$(sudo cat /var/run/myfid-$4.pid) vap.vaps
