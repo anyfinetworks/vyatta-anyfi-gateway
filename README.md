@@ -25,20 +25,51 @@ For a more complete description see the
 
     service
       anyfi
-        gateway <NAME>
-          security
-            ciphers <tkip|ccmp|both>
-            authentication <psk|eap>
-            protocol <wpa|wpa2|both|open>
-            passphrase <txt>
-            radius-server <ipv4>
-            radius-secret <txt>
-            rekey-interval <int>
-            strict-rekey
-          bridge <intf>
-          ssid <txt>
+        gateway <txt: NAME>
+          controller <ipv4: CONTROLLER ADDRESS>
+          ssid <txt: SERVICE SET ID>
+          uuid <txt: SERVICE SET UUID>
+          bridge <txt: BRIDGE INTERFACE NAME>
+          wpa
+            ciphers
+              tkip
+              ccmp
+          wpa2
+            ciphers
+              tkip
+              ccmp
+          authentication
+            eap
+              radius-server <ipv4: RADIUS SERVER ADDRESS>
+              radius-secret <txt: RADIUS SHARED SECRET>
+              radius-port <int: RADIUS UDP PORT>
+              secondary
+                radius-server <ipv4: RADIUS SERVER ADDRESS>
+                radius-secret <txt: RADIUS SHARED SECRET>
+                radius-port <int: RADIUS UDP PORT>
+            psk
+              passphrase <txt: PRE-SHARED PASSPHRASE>
+          authorization
+            radius-server <ipv4: RADIUS SERVER ADDRESS>
+            radius-secret <txt: RADIUS SHARED SECRET>
+            radius-port <int: RADIUS UDP PORT>
+            secondary
+              radius-server <ipv4: RADIUS SERVER ADDRESS>
+              radius-secret <txt: RADIUS SHARED SECRET>
+              radius-port <int: RADIUS UDP PORT>
+          accounting
+            radius-server <ipv4: RADIUS SERVER ADDRESS>
+            radius-secret <ipv4: RADIUS SHARED SECRET>
+            radius-port <int: RADIUS UDP PORT>
+            secondary
+              radius-server <ipv4: RADIUS SERVER ADDRESS>
+              radius-secret <txt: RADIUS SHARED SECRET>
+              radius-port <int: RADIUS UDP PORT>
+          rekey-interval <int: INTERVAL>
+          strict-rekey
 
 # Operational Commands
 
-    show interfaces anyfi   # Lists all anyfi services (with myfidctl output).
+    show anyfi license          # Show license information.
+    show anyfi gateway <NAME>   # Show information about a gateway instance.
 
