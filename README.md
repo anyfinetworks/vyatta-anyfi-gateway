@@ -67,6 +67,8 @@ For a more complete description see the
               radius-port <int: RADIUS UDP PORT>
           rekey-interval <int: INTERVAL>
           strict-rekey
+          port-range <txt: UDP PORT RANGE TO USE FOR THIS SERVICE>
+          cpu-cores <int: NUMBER OF CORES TO USE FOR PACKET PROCESSING>
 
 # Operational Commands
 
