@@ -16,10 +16,17 @@ end:
             exit 1
          fi
 
+         if /bin/cli-shell-api exists service anyfi gateway $VAR(@) port-range; then
+             port_range=`/bin/cli-shell-api returnValue service anyfi gateway $VAR(@) port-range`
+             start_port="-p `echo $port_range | awk -F '-' '{print $1}'`"
+         else
+             start_port=""
+         fi
+
          sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/myfid-$VAR(@).conf || exit 1 
          if [ -f /var/run/myfid-$VAR(@).pid ]; then
              sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
          fi
-         sudo /usr/sbin/myfid --accept-license -s $VAR(controller/@) -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
+         sudo /usr/sbin/myfid --accept-license -s $VAR(controller/@) $start_port -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
      fi
 
