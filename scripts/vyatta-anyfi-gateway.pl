@@ -44,6 +44,15 @@ sub generate_config
 
     my $config_string = "";
 
+    # Port range
+    # XXX: at this point only the first port is actually used
+    my $port_range = $config->returnValue("port-range");
+    if( $port_range )
+    {
+        my ($port) = $port_range =~ /(\d+)\-\d+/;
+        $config_string .= "bind_port = $port\n";
+    }
+
     # Bridge
     my $bridge = $config->returnValue("bridge");
     if(! $bridge )
