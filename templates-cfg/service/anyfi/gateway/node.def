@@ -27,6 +27,6 @@ end:
          if [ -f /var/run/myfid-$VAR(@).pid ]; then
              sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
          fi
-         sudo /usr/sbin/myfid --accept-license -s $VAR(controller/@) $start_port -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
+         sudo /usr/sbin/myfid --accept-license -C $VAR(controller/@) $start_port -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
      fi
 
