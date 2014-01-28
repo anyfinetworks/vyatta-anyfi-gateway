@@ -36,6 +36,106 @@ sub error
     exit(1);
 }
 
+sub setup_port_range
+{
+    # Port range
+    # XXX: at this point only the first port is actually used
+    
+    my $port_range = shift;
+    my $port_range_string .= "bind_port = $port_range \n";
+
+    return($port_range_string);
+}
+
+sub setup_bridge
+{
+    my $bridge = shift;
+    my $bridge_string = "bridge = $bridge \n";
+
+    return($bridge_string);
+}
+
+sub setup_ssid
+{
+    my $ssid = shift;
+    my $ssid_string = "ssid = $ssid \n";
+
+    return($ssid_string);
+}
+
+sub setup_uuid
+{
+    my $uuid = shift;
+    my $uuid_string = "uuid = $uuid \n";
+
+    return($uuid_string);
+}
+
+sub setup_rekey_interval
+{
+    my $rekey_interval = shift;
+    my $rekey_interval_string = "group_rekey = $rekey_interval \n";
+
+    return($rekey_interval_string);
+}
+
+sub setup_strict_rekey
+{
+    my $strict_rekey_string = "strict_rekey = 1 \n";
+
+    return($strict_rekey_string);
+}
+
+sub setup_auth_proto
+{
+    my $auth_proto = shift;
+    my $auth_proto_string = "";
+
+    $auth_proto_string .= "auth_proto = $auth_proto \n";
+
+    return($auth_proto_string);
+}
+
+sub setup_auth_mode
+{
+    my $auth_mode = shift;
+    my $auth_mode_string = "auth_mode = $auth_mode \n";
+
+    return($auth_mode_string);
+}
+
+sub setup_ciphers
+{
+    my $ciphers = shift;
+    my $auth_proto = shift;
+    my $ciphers_string = "";
+
+    if( $ciphers eq 'both' )
+    {
+        $ciphers = 'tkip+ccmp';
+    }
+
+    if( $auth_proto eq 'wpa+rsn' )
+    {
+        $ciphers_string .= "wpa_ciphers = $ciphers\n";
+        $ciphers_string .= "rsn_cipher = $ciphers\n";
+    }
+    else
+    {
+        $ciphers_string .= $auth_proto . "_ciphers = $ciphers\n";
+    }
+ 
+    return($ciphers_string);
+}
+
+sub setup_passphrase
+{
+    my $passphrase = shift;
+    my $passphrase_string = "passphrase = $passphrase \n";
+
+    return($passphrase_string);
+}
+
 sub generate_config
 {
     my $instance = shift;
@@ -43,15 +143,6 @@ sub generate_config
     $config->setLevel("service anyfi gateway $instance");
 
     my $config_string = "";
-
-    # Port range
-    # XXX: at this point only the first port is actually used
-#    my $port_range = $config->returnValue("port-range");
-#    if( $port_range )
-#    {
-#        my ($port) = $port_range =~ /(\d+)\-\d+/;
-#        $config_string .= "bind_port = $port\n";
-#    }
 
     # Bridge
     my $bridge = $config->returnValue("bridge");
@@ -63,13 +154,13 @@ sub generate_config
     {
         error("Bridge $bridge does not exist");
     }
-    $config_string .= "bridge = $bridge\n";
+    $config_string .= setup_bridge($bridge);
 
     # SSID
     my $ssid = $config->returnValue("ssid");
     if( $ssid )
     {
-        $config_string .= "ssid = $ssid\n";
+        $config_string .= setup_ssid($ssid);
     }
     else
     {
@@ -80,20 +171,20 @@ sub generate_config
     my $uuid = $config->returnValue("uuid");
     if( $uuid )
     {
-        $config_string .= "uuid = $uuid\n";
+        $config_string .= setup_uuid($uuid);
     }
 
     # Rekey interval
     my $rekey_interval = $config->returnValue("security rekey-interval");
     if( $rekey_interval )
     {
-        $config_string .= "group_rekey = $rekey_interval\n";
+        $config_string .= setup_rekey_interval($rekey_interval);
     }
 
     # Strict rekey
     if( $config->exists("security strict-rekey") )
     {
-        $config_string .= "strict_rekey = 1\n";
+        $config_string .= setup_strict_rekey();
     }
 
     # Authentication settings
@@ -123,6 +214,8 @@ sub generate_config
     }
 
     # $auth_proto is later used in ciphers
+    # Config values for it don't exactly match myfid config values,
+    # so we need to convert here
     if( $auth_proto eq 'wpa2' )
     {
         $auth_proto = 'rsn';
@@ -131,11 +224,11 @@ sub generate_config
     {
         $auth_proto = 'wpa+rsn';
     }
-    $config_string .= "auth_proto = $auth_proto\n";
+    $config_string .= setup_auth_proto($auth_proto);
 
     if( $auth_proto ne 'open' )
     {
-      $config_string .= "auth_mode = $auth_mode\n";
+      $config_string .= setup_auth_mode($auth_mode);
     }
 
     # Ciphers
@@ -147,19 +240,7 @@ sub generate_config
             error("Can't specify ciphers if security protocol is \"open\"");
         }
 
-        if( $ciphers eq 'both' )
-        {
-            $ciphers = 'tkip+ccmp';
-        }
-
-        # Have I gotten this right?
-        if( $auth_proto eq 'wpa+rsn' )
-        {
-            $config_string .= "wpa_ciphers = $ciphers\n";
-            $config_string .= "rsn_cipher = $ciphers\n";
-        }
-
-        $config_string .= $auth_proto . "_ciphers = $ciphers\n";
+        $config_string .= setup_ciphers($ciphers, $auth_proto);
     }
 
     # Passphrase
@@ -171,7 +252,7 @@ sub generate_config
             error("Can't specify passphrase if security mode is not 'psk'");
         }
 
-        $config_string .= "passphrase = $passphrase\n";
+        $config_string .= setup_passphrase($passphrase);
     }
 
     # RADIUS server
