@@ -20,6 +20,9 @@
 #
 #
 
+# XXX: At the moment "service anyfi gateway $VAR(@) port-range"
+# is handled in the templates and is not reflected here in any way
+
 use lib "/opt/vyatta/share/perl5/";
 
 use strict;
@@ -110,20 +113,7 @@ sub setup_ciphers
     my $auth_proto = shift;
     my $ciphers_string = "";
 
-    if( $ciphers eq 'both' )
-    {
-        $ciphers = 'tkip+ccmp';
-    }
-
-    if( $auth_proto eq 'wpa+rsn' )
-    {
-        $ciphers_string .= "wpa_ciphers = $ciphers\n";
-        $ciphers_string .= "rsn_cipher = $ciphers\n";
-    }
-    else
-    {
-        $ciphers_string .= $auth_proto . "_ciphers = $ciphers\n";
-    }
+    $ciphers_string .= $auth_proto . "_ciphers = $ciphers\n";
  
     return($ciphers_string);
 }
@@ -134,6 +124,27 @@ sub setup_passphrase
     my $passphrase_string = "passphrase = $passphrase \n";
 
     return($passphrase_string);
+}
+
+sub setup_radius_server
+{
+    # XXX: Too many parameneters offend Alan Perlis, but anyway.
+    my $server = shift;
+    my $port = shift;
+    my $secret = shift;
+    my $role = shift; # authentication/authorization/accounting
+    my $priority = shift; # primary or secondary
+
+    my $radius_string = "radius_" . $role . "_" . $priority . "_server = $server\n";
+
+    if( defined($port) )
+    {
+        $radius_string .= "radius_" . $role . "_" . $priority . "_port = $port\n";
+    }
+
+    $radius_string .= "radius_" . $role . "_" . $priority . "_secret = $secret\n";
+
+    return($radius_string);
 }
 
 sub generate_config
@@ -188,91 +199,189 @@ sub generate_config
     }
 
     # Authentication settings
-    my $auth_mode = $config->returnValue("security authentication");
-    my $auth_proto = $config->returnValue("security protocol");
-
-    if( $auth_proto )
+    if( $config->exists("authentication eap") && $config->exists("authentication psk") )
     {
-        if( $auth_proto eq 'open' )
+        error("Can not configure both RADIUS and pre-shared key authentication at the same time!");
+    }
+
+    if( $config->exists("authentication eap") )
+    {
+        $config_string .= setup_auth_mode("eap");
+
+        my $primary_server = $config->returnValue("authentication eap radius-server");
+        my $primary_port = $config->returnValue("authentication eap radius-port");
+        my $primary_secret = $config->returnValue("authentication eap radius-secret");
+        if( !defined($primary_server) )
         {
-            if( $auth_mode )
-            {
-                error("Can't specify authentication mode if protocol is \"open\"");
-            }
+            error("Must specify primary RADIUS server address in authentication!");
+        }
+        elsif( !defined($primary_secret) )
+        {
+            error("Must specify primary RADIUS secret in authentication");
         }
         else
         {
-            if( (! $auth_mode) )
+            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "authentication", "primary");
+        }
+
+        if( $config->exists("authentication eap secondary") )
+        {
+            my $secondary_server = $config->returnValue("authentication eap secondary radius-server");
+            my $secondary_port = $config->returnValue("authentication eap secondary radius-port");
+            my $secondary_secret = $config->returnValue("authentication eap secondary radius-secret");
+
+            if( !defined($secondary_server) )
             {
-                error("Security protocol \"$auth_proto\" requires authentication");
+                error("Must specify secondary RADIUS server address in authentication!");
             }
+            elsif( !defined($secondary_secret) )
+            {
+                error("Must specify secondary RADIUS secret in authentication");
+            }
+            else
+            {
+                $config_string .= setup_radius_server($secondary_server, $secondary_port, $secondary_secret, "authentication", "secondary");
+            }
+        }
+    }
+    elsif( $config->exists("authentication psk") )
+    {
+        my $passphrase = $config->returnValue("authentication psk passphrase");
+        if( !defined($passphrase) )
+        {
+            error("Must specify passphrase!");
+        }
+        elsif( length($passphrase) < 8 )
+        {
+            error("Passphrase must be at least 8 characters long!");
+        }
+        else
+        {
+            $config_string .= setup_auth_mode("psk");
+            $config_string .= setup_passphrase($passphrase);
         }
     }
     else
     {
-        error("Must specify security protocol");
+        # Implicit default to open
+        $config_string .= setup_auth_proto("open");
     }
 
-    # $auth_proto is later used in ciphers
-    # Config values for it don't exactly match myfid config values,
-    # so we need to convert here
-    if( $auth_proto eq 'wpa2' )
+    # Authorization
+    if( $config->exists("authorization") )
     {
-        $auth_proto = 'rsn';
-    }
-    elsif( $auth_proto eq 'both' )
-    {
-        $auth_proto = 'wpa+rsn';
-    }
-    $config_string .= setup_auth_proto($auth_proto);
-
-    if( $auth_proto ne 'open' )
-    {
-      $config_string .= setup_auth_mode($auth_mode);
-    }
-
-    # Ciphers
-    my $ciphers = $config->returnValue("security ciphers");
-    if( $ciphers )
-    {
-        if( $auth_proto eq 'open' )
+        my $primary_server = $config->returnValue("authorization radius-server");
+        my $primary_port = $config->returnValue("authorization radius-port");
+        my $primary_secret = $config->returnValue("authorization radius-secret");
+        if( !defined($primary_server) )
         {
-            error("Can't specify ciphers if security protocol is \"open\"");
+            error("Must specify primary RADIUS server address in authorization!");
+        }
+        elsif( !defined($primary_secret) )
+        {
+            error("Must specify primary RADIUS secret in authorization");
+        }
+        else
+        {
+            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "authorization", "primary");
         }
 
-        $config_string .= setup_ciphers($ciphers, $auth_proto);
+        if( $config->exists("authorization secondary") )
+        {
+            my $secondary_server = $config->returnValue("authorization secondary radius-server");
+            my $secondary_port = $config->returnValue("authorization secondary radius-port");
+            my $secondary_secret = $config->returnValue("authorization secondary radius-secret");
+
+            if( !defined($secondary_server) )
+            {
+                error("Must specify secondary RADIUS server address in authorization!");
+            }
+            elsif( !defined($secondary_secret) )
+            {
+                error("Must specify secondary RADIUS secret in authorization");
+            }
+            else
+            {
+                $config_string .= setup_radius_server($secondary_server, $secondary_port, $secondary_secret, "authorization", "secondary");
+            }
+        }
     }
 
-    # Passphrase
-    my $passphrase = $config->returnValue("security passphrase");
-    if( $passphrase )
+    # Accounting settings
+    if( $config->exists("accounting") )
     {
-        if( $auth_mode ne 'psk' )
+        my $primary_server = $config->returnValue("accounting radius-server");
+        my $primary_port = $config->returnValue("accounting radius-port");
+        my $primary_secret = $config->returnValue("accounting radius-secret");
+        if( !defined($primary_server) )
         {
-            error("Can't specify passphrase if security mode is not 'psk'");
+            error("Must specify primary RADIUS server address in accounting!");
+        }
+        elsif( !defined($primary_secret) )
+        {
+            error("Must specify primary RADIUS secret in accounting");
+        }
+        else
+        {
+            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "accounting", "primary");
         }
 
-        $config_string .= setup_passphrase($passphrase);
+        if( $config->exists("accounting secondary") )
+        {
+            my $secondary_server = $config->returnValue("accounting secondary radius-server");
+            my $secondary_port = $config->returnValue("accounting secondary radius-port");
+            my $secondary_secret = $config->returnValue("accounting secondary radius-secret");
+
+            if( !defined($secondary_server) )
+            {
+                error("Must specify secondary RADIUS server address in accounting!");
+            }
+            elsif( !defined($secondary_secret) )
+            {
+                error("Must specify secondary RADIUS secret in accounting");
+            }
+            else
+            {
+                $config_string .= setup_radius_server($secondary_server, $secondary_port, $secondary_secret, "accounting", "secondary");
+            }
+        }
     }
 
-    # RADIUS server
-    my $radius_server = $config->returnValue("security radius-server");
-    if( $radius_server )
+    # Security protocol
+    if( $config->exists("authentication psk") || $config->exists("authentication eap") )
     {
-        if( $auth_mode ne 'eap' )
+        my $auth_proto = undef;
+
+        if( $config->exists("wpa") && $config->exists("wpa2") )
         {
-            error("Can't specify RADIUS server if security mode is not 'eap'");
+            $auth_proto = "wpa+rsn";
+        }
+        elsif( $config->exists("wpa") )
+        {
+            $auth_proto = "wpa";
+        }
+        elsif( $config->exists("wpa2") )
+        {
+            $auth_proto = "rsn";
         }
 
-        $config_string .= "radius_auth_server = $radius_server\n";
+        $config_string .= setup_auth_proto($auth_proto);
+        my $wpa_ciphers = join("+", $config->returnValues("wpa ciphers"));
+        my $rsn_ciphers = join("+", $config->returnValues("wpa2 ciphers"));
 
-        my $radius_secret = $config->returnValue("security radius-secret");
-        if( (! $radius_secret) )
+        if( $auth_proto eq "wpa+rsn" )
         {
-            error("Must specify RADIUS secret");
+            $config_string .= setup_ciphers($wpa_ciphers, "wpa") if $wpa_ciphers;
+            $config_string .= setup_ciphers($rsn_ciphers, "rsn") if $rsn_ciphers;
         }
-
-        $config_string .= "radius_auth_secret = $radius_secret\n";
+        elsif( $auth_proto eq "wpa" )
+        {
+            $config_string .= setup_ciphers($wpa_ciphers, "wpa") if $wpa_ciphers;
+        }
+        elsif( $auth_proto eq "wpa2" )
+        {
+            $config_string .= setup_ciphers($rsn_ciphers, "rsn") if $rsn_ciphers;
+        }
     }
 
     return($config_string);

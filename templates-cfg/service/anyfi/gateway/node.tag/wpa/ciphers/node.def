@@ -1,4 +1,5 @@
+multi:
 type: txt
 help: WPA or WPA2 ciphers
-allowed: echo "tkip ccmp both"
-syntax:expression: pattern $VAR(@) "(tkip|ccmp|both)"
+allowed: echo "tkip ccmp"
+syntax:expression: pattern $VAR(@) "(tkip|ccmp)"
