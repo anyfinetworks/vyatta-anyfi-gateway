@@ -152,6 +152,19 @@ sub setup_isolation
     return("isolation = 1\n");
 }
 
+sub setup_arp_optimization
+{
+    my $arp_string = "optimize_arp_rewrite_to_unicast = 1\n";
+    $arp_string .= "optimize_arp_reply_from_cache = 1\n";
+    return($arp_string);
+}
+
+sub setup_dhcp_optimization
+{
+    my $dhcp_string = "optimize_dhcp = 1\n";
+    return($dhcp_string);
+}
+
 sub generate_config
 {
     my $instance = shift;
@@ -393,6 +406,18 @@ sub generate_config
     if( $config->exists("isolation") )
     {
         $config_string .= setup_isolation();
+    }
+
+    # ARP optimization
+    if( $config->exists("optimize arp") )
+    {
+        $config_string .= setup_arp_optimization();
+    }
+
+    # DHCP optimization
+    if( $config->exists("optimize dhcp") )
+    {
+        $config_string .= setup_dhcp_optimization();
     }
 
     return($config_string);
