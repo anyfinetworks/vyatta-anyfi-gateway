@@ -147,6 +147,11 @@ sub setup_radius_server
     return($radius_string);
 }
 
+sub setup_isolation
+{
+    return("isolation = 1\n");
+}
+
 sub generate_config
 {
     my $instance = shift;
@@ -382,6 +387,12 @@ sub generate_config
         {
             $config_string .= setup_ciphers($rsn_ciphers, "rsn") if $rsn_ciphers;
         }
+    }
+
+    # Isolation
+    if( $config->exists("isolation") )
+    {
+        $config_string .= setup_isolation();
     }
 
     return($config_string);
