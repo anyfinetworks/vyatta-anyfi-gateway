@@ -128,21 +128,19 @@ sub setup_passphrase
 
 sub setup_radius_server
 {
-    # XXX: Too many parameneters offend Alan Perlis, but anyway.
     my $server = shift;
     my $port = shift;
     my $secret = shift;
-    my $role = shift; # authentication/authorization/accounting
-    my $priority = shift; # primary or secondary
+    my $role = shift; # auth/acct/autz
 
-    my $radius_string = "radius_" . $role . "_" . $priority . "_server = $server\n";
+    my $radius_string = "radius_" . $role . "_server = $server\n";
 
     if( defined($port) )
     {
-        $radius_string .= "radius_" . $role . "_" . $priority . "_port = $port\n";
+        $radius_string .= "radius_" . $role . "_port = $port\n";
     }
 
-    $radius_string .= "radius_" . $role . "_" . $priority . "_secret = $secret\n";
+    $radius_string .= "radius_" . $role . "_secret = $secret\n";
 
     return($radius_string);
 }
@@ -231,35 +229,15 @@ sub generate_config
         my $primary_secret = $config->returnValue("authentication eap radius-secret");
         if( !defined($primary_server) )
         {
-            error("Must specify primary RADIUS server address in authentication!");
+            error("Must specify RADIUS server address in authentication!");
         }
         elsif( !defined($primary_secret) )
         {
-            error("Must specify primary RADIUS secret in authentication");
+            error("Must specify RADIUS secret in authentication");
         }
         else
         {
-            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "authentication", "primary");
-        }
-
-        if( $config->exists("authentication eap secondary") )
-        {
-            my $secondary_server = $config->returnValue("authentication eap secondary radius-server");
-            my $secondary_port = $config->returnValue("authentication eap secondary radius-port");
-            my $secondary_secret = $config->returnValue("authentication eap secondary radius-secret");
-
-            if( !defined($secondary_server) )
-            {
-                error("Must specify secondary RADIUS server address in authentication!");
-            }
-            elsif( !defined($secondary_secret) )
-            {
-                error("Must specify secondary RADIUS secret in authentication");
-            }
-            else
-            {
-                $config_string .= setup_radius_server($secondary_server, $secondary_port, $secondary_secret, "authentication", "secondary");
-            }
+            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "auth");
         }
     }
     elsif( $config->exists("authentication psk") )
@@ -301,27 +279,7 @@ sub generate_config
         }
         else
         {
-            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "authorization", "primary");
-        }
-
-        if( $config->exists("authorization secondary") )
-        {
-            my $secondary_server = $config->returnValue("authorization secondary radius-server");
-            my $secondary_port = $config->returnValue("authorization secondary radius-port");
-            my $secondary_secret = $config->returnValue("authorization secondary radius-secret");
-
-            if( !defined($secondary_server) )
-            {
-                error("Must specify secondary RADIUS server address in authorization!");
-            }
-            elsif( !defined($secondary_secret) )
-            {
-                error("Must specify secondary RADIUS secret in authorization");
-            }
-            else
-            {
-                $config_string .= setup_radius_server($secondary_server, $secondary_port, $secondary_secret, "authorization", "secondary");
-            }
+            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "autz");
         }
     }
 
@@ -341,27 +299,7 @@ sub generate_config
         }
         else
         {
-            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "accounting", "primary");
-        }
-
-        if( $config->exists("accounting secondary") )
-        {
-            my $secondary_server = $config->returnValue("accounting secondary radius-server");
-            my $secondary_port = $config->returnValue("accounting secondary radius-port");
-            my $secondary_secret = $config->returnValue("accounting secondary radius-secret");
-
-            if( !defined($secondary_server) )
-            {
-                error("Must specify secondary RADIUS server address in accounting!");
-            }
-            elsif( !defined($secondary_secret) )
-            {
-                error("Must specify secondary RADIUS secret in accounting");
-            }
-            else
-            {
-                $config_string .= setup_radius_server($secondary_server, $secondary_port, $secondary_secret, "accounting", "secondary");
-            }
+            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "acct");
         }
     }
 
