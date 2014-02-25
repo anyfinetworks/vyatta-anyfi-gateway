@@ -1,2 +1,1 @@
 help: Show/Set log level
-run: sudo /usr/sbin/myfidctl -c /var/run/myfidsock.$(sudo cat /var/run/myfid-$4.pid) loglevel=$6
