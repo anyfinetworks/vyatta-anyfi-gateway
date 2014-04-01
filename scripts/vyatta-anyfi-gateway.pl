@@ -319,7 +319,9 @@ sub generate_config
         elsif( $config->exists("wpa2") )
         {
             $auth_proto = "rsn";
-        }
+        } else {
+	    error("no security protocol set, you need to set either wpa or wpa2 or both under \"service anyfi gateway $instance\"")
+	}
 
         $config_string .= setup_auth_proto($auth_proto);
         my $wpa_ciphers = join("+", $config->returnValues("wpa ciphers"));
@@ -338,6 +340,11 @@ sub generate_config
         {
             $config_string .= setup_ciphers($rsn_ciphers, "rsn") if $rsn_ciphers;
         }
+    } else {
+	if( $config->exists("wpa") || $config->exists("wpa2") )
+        {
+	    error("wpa or wpa2 set without any authentication method, you need to set an authentication method under \"service anyfi gateway $instance authentication\"")
+        }      
     }
 
     # Isolation
