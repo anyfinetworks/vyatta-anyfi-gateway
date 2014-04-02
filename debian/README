@@ -1,6 +1,6 @@
 The Debian Package vyatta-anyfi-gateway
 ---------------------------------------
 
-This package an AnyFi gateway integration package for Vyatta/EdgeOS.
+This package an Anyfi gateway integration package for Vyatta/EdgeOS.
 
  -- Daniil Baturin <daniil@baturin.org>  Tue, 26 Nov 2013 00:00:00 -0700

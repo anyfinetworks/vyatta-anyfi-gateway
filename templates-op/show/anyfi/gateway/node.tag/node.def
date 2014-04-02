@@ -1,2 +1,2 @@
-help: Show specified AnyFi gateway information
+help: Show specified Anyfi gateway information
 allowed: cli-shell-api listEffectiveNodes service anyfi gateway|sed -re s/\'//g

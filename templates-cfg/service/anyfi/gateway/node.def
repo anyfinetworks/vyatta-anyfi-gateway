@@ -1,7 +1,7 @@
 tag:
 priority: 999
 type: txt
-help: AnyFi Gateway
+help: Anyfi Gateway
 end:
      if [ ${COMMIT_ACTION} == DELETE ]; then
          sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid) 
@@ -12,7 +12,7 @@ end:
          fi
 
          if [ -z "$VAR(controller/@)" ]; then
-            echo "Error configuring AnyFi Gateway: Must specify Controller"
+            echo "Error configuring Anyfi Gateway: Must specify Controller"
             exit 1
          fi
 
