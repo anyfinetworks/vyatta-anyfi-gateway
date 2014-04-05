@@ -1,13 +1,10 @@
 This package was debianized by Daniil Baturin <daniil@baturin.org> on
 Sat, 17 Aug 2013.
 
-Upstream Author: 
-
-    Anyfi Networks <eng@anyfinetworks.com>
-
 Copyright: 
 
     Copyright (C) 2013-2014 Anyfi Networks AB.
+    All Rights Reserved.
 
 License:
 
@@ -28,5 +25,5 @@ You can also obtain it by writing to the Free Software Foundation,
 Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
 MA 02110-1301, USA.
 
-The Debian packaging is (C) 2013-2014 Anyfi Networks AB and licensed
-under the GPL, see above.
+The Debian packaging is copyright (C) 2013-2014 Anyfi Networks AB and
+licensed under the GPL, see above.

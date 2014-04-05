@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 #
-# vyatta-anyfi-gateway.pl: myfid config generator
+# vyatta-anyfi-gateway.pl: anyfi-gateway config generator
 #
-# Maintainer: Daniil Baturin <daniil@baturin.org>
+# Maintainer: Anyfi Networks <eng@anyfinetworks.com>
 #
-# Copyright (C) 2013-2014 Anyfi Networks AB.
+# Copyright (C) 2013-2014 Anyfi Networks AB. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 #
 
 # XXX: At the moment "service anyfi gateway $VAR(@) port-range"
