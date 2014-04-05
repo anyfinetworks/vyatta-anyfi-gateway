@@ -1,3 +1,4 @@
-This package has Vyatta cron configuration templates and scripts.
+This package has Vyatta configuration templates and scripts for the
+Anyfi Gateway.
 
 See README.md for details.
