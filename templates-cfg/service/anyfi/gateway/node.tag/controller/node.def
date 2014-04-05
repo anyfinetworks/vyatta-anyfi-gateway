@@ -1,3 +1,3 @@
 type: txt
 help: Controller IP or FQDN
-syntax:expression: pattern $VAR(@) "^(([a-zA-Z0-9]+)\\.)*([A-Za-z0-9]+)$"
+syntax:expression: pattern $VAR(@) "^(([A-Za-z0-9_-]+)\\.)*([A-Za-z0-9_-]+)$"
