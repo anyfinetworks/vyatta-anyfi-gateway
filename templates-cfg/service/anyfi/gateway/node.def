@@ -4,11 +4,11 @@ type: txt
 help: Anyfi Gateway
 end:
      if [ ${COMMIT_ACTION} == DELETE ]; then
-         sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid) 
-         sudo rm -f /etc/myfid-$VAR(@).conf
+         sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
+         sudo rm -f /etc/anyfi-gateway-$VAR(@).conf
      else
-         if [ -f /var/myfid-$VAR(@).pid ]; then
-             sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
+         if [ -f /var/anyfi-gateway-$VAR(@).pid ]; then
+             sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
          fi
 
          if [ -z "$VAR(controller/@)" ]; then
@@ -23,10 +23,10 @@ end:
              start_port=""
          fi
 
-         sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/myfid-$VAR(@).conf || exit 1 
-         if [ -f /var/run/myfid-$VAR(@).pid ]; then
-             sudo kill -TERM $(sudo cat /var/run/myfid-$VAR(@).pid)
+         sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/anyfi-gateway-$VAR(@).conf || exit 1 
+         if [ -f /var/run/anyfi-gateway-$VAR(@).pid ]; then
+             sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
          fi
-         sudo /usr/sbin/myfid --accept-license -C $VAR(controller/@) $start_port -B -P /var/run/myfid-$VAR(@).pid /etc/myfid-$VAR(@).conf 
+         sudo /usr/sbin/anyfi-gateway --accept-license -C $VAR(controller/@) $start_port -B -P /var/run/anyfi-gateway-$VAR(@).pid /etc/anyfi-gateway-$VAR(@).conf 
      fi
 

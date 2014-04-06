@@ -1,2 +1,2 @@
 help: Show/Set log level
-run: sudo /usr/sbin/myfidctl -c /var/run/myfidsock.$(sudo cat /var/run/myfid-$4.pid) loglevel
+run: sudo /usr/sbin/anyfi-gatewayctl -c /var/run/myfidsock.$(sudo cat /var/run/anyfi-gateway-$4.pid) loglevel

@@ -1,2 +1,2 @@
 help: Show connected IEEE 802.11 Basic Service Sets
-run: sudo /usr/sbin/myfidctl -c /var/run/myfidsock.$(sudo cat /var/run/myfid-$4.pid) vap.vaps
+run: sudo /usr/sbin/anyfi-gatewayctl -c /var/run/myfidsock.$(sudo cat /var/run/anyfi-gateway-$4.pid) vap.vaps

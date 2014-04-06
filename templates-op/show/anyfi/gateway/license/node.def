@@ -1,2 +1,2 @@
 help: Show license information
-run: /usr/sbin/myfid --help | head -77
+run: /usr/sbin/anyfi-gateway --help | head -77
