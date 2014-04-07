@@ -5,18 +5,18 @@ help: Anyfi Gateway
 
 end:
      if [ ${COMMIT_ACTION} == DELETE ]; then
-         echo -n "Stopping anyfi-gateway: "
+         echo -n "Stopping anyfi gateway:"
          sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
          sudo rm -f /etc/anyfi-gateway-$VAR(@).conf
-         echo "anyfi-gateway"
+         echo " anyfi-gateway."
      else	
          # If this is an update, then first stop the old daemon
          if [ ${COMMIT_ACTION} == ACTIVE ]; then
              # Stop the old daemon
              if [ -f /var/run/anyfi-gateway-$VAR(@).pid ]; then
-                 echo -n "Stopping anyfi-gateway: "
+                 echo -n "Stopping anyfi gateway:"
                  sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
-                 echo "anyfi-gateway"
+                 echo " anyfi-gateway."
              fi
          fi
 
@@ -25,7 +25,7 @@ end:
 
          # Make sure settings passed on command line are set
          if [ -z "$VAR(controller/@)" ]; then
-            echo "Error configuring Anyfi Gateway: Must specify Controller"
+            echo "Error configuring anyfi gateway: must specify controller."
             exit 1
          fi
 
@@ -37,8 +37,8 @@ end:
          fi
 
          # Start the daemon
-	 echo -n "Starting anyfi-gateway: "
+         echo -n "Starting anyfi gateway:"
          sudo /usr/sbin/anyfi-gateway --accept-license -C $VAR(controller/@) $start_port -B -P /var/run/anyfi-gateway-$VAR(@).pid /etc/anyfi-gateway-$VAR(@).conf 
-	 echo "anyfi-gateway"
+         echo " anyfi-gateway."
      fi
 
