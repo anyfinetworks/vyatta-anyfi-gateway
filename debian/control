@@ -13,5 +13,6 @@ Depends: vyatta-cfg-system,
  anyfi-gateway,
  ${misc:Depends}
 Replaces: vyatta-anyfi-gateway
-Description: Vyatta Anyfi gateway integration
- Anyfi gateway service integration for Vyatta/EdgeOS
+Description: Vyatta integration for Anyfi Gateway
+ Vyatta integration for Anyfi Gateway, a Software-Defined
+ Wireless Networking (SDWN) gateway for carrier Wi-Fi.
