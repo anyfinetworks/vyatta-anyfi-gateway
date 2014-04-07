@@ -2,15 +2,28 @@ tag:
 priority: 999
 type: txt
 help: Anyfi Gateway
+
 end:
      if [ ${COMMIT_ACTION} == DELETE ]; then
+         echo -n "Stopping anyfi-gateway: "
          sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
          sudo rm -f /etc/anyfi-gateway-$VAR(@).conf
-     else
-         if [ -f /var/anyfi-gateway-$VAR(@).pid ]; then
-             sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
+         echo "anyfi-gateway"
+     else	
+         # If this is an update, then first stop the old daemon
+         if [ ${COMMIT_ACTION} == ACTIVE ]; then
+             # Stop the old daemon
+             if [ -f /var/run/anyfi-gateway-$VAR(@).pid ]; then
+                 echo -n "Stopping anyfi-gateway: "
+                 sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
+                 echo "anyfi-gateway"
+             fi
          fi
 
+         # Regenerate the config file
+         sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/anyfi-gateway-$VAR(@).conf || exit 1 
+
+         # Make sure settings passed on command line are set
          if [ -z "$VAR(controller/@)" ]; then
             echo "Error configuring Anyfi Gateway: Must specify Controller"
             exit 1
@@ -23,10 +36,9 @@ end:
              start_port=""
          fi
 
-         sudo /opt/vyatta/sbin/vyatta-anyfi-gateway.pl --instance=$VAR(@) --config=/etc/anyfi-gateway-$VAR(@).conf || exit 1 
-         if [ -f /var/run/anyfi-gateway-$VAR(@).pid ]; then
-             sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
-         fi
+         # Start the daemon
+	 echo -n "Starting anyfi-gateway: "
          sudo /usr/sbin/anyfi-gateway --accept-license -C $VAR(controller/@) $start_port -B -P /var/run/anyfi-gateway-$VAR(@).pid /etc/anyfi-gateway-$VAR(@).conf 
+	 echo "anyfi-gateway"
      fi
 
