@@ -34,7 +34,7 @@ my $conf_dir = "/etc/";
 sub error
 {
     my $msg = shift;
-    print "Error configuring Anyfi Gateway: $msg\n";
+    print "Error configuring anyfi gateway: $msg\n";
     exit(1);
 }
 
