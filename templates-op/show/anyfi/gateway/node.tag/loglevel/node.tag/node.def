@@ -1,3 +1,0 @@
-help: Show/Set log level
-allowed: echo -n '<0-4>'
-run: sudo /usr/sbin/anyfi-gatewayctl -c /var/run/myfidsock.$(sudo cat /var/run/anyfi-gateway-$4.pid) loglevel=$6
