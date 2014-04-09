@@ -38,7 +38,7 @@ end:
 
          # Start the daemon
          echo -n "Starting anyfi gateway:"
-         sudo /usr/sbin/anyfi-gateway --accept-license -C $VAR(controller/@) $start_port -B -P /var/run/anyfi-gateway-$VAR(@).pid /etc/anyfi-gateway-$VAR(@).conf 
+         sudo /usr/sbin/anyfi-gateway --accept-license -C $VAR(controller/@) $start_port -B -P /var/run/anyfi-gateway-$VAR(@).pid /etc/anyfi-gateway-$VAR(@).conf || exit 1
          echo " anyfi-gateway."
      fi
 
