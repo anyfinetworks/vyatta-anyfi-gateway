@@ -108,8 +108,8 @@ sub setup_auth_mode
 
 sub setup_ciphers
 {
-    my $ciphers = shift;
     my $auth_proto = shift;
+    my $ciphers = shift;
     my $ciphers_string = "";
 
     $ciphers_string .= $auth_proto . "_ciphers = $ciphers\n";
@@ -147,6 +147,17 @@ sub setup_radius_server
 sub setup_isolation
 {
     return("isolation = 1\n");
+}
+
+sub get_ciphers
+{
+    my $config = shift;
+    my $level = shift;
+    my @ciphers = ("ccmp", "tkip");
+
+    @ciphers = $config->listNodes("$level ciphers") if $config->exists("$level ciphers");
+
+    return \@ciphers;
 }
 
 sub generate_config
@@ -309,48 +320,32 @@ sub generate_config
         }
     }
 
-    # Security protocol
-    if( $config->exists("authentication psk") || $config->exists("authentication eap") )
+    # WPA/WPA2 Security
+
+    if( $config->exists("authentication") && !($config->exists("wpa") || $config->exists("wpa2")) )
     {
-        my $auth_proto = undef;
+        error("authentication requires wpa or wpa2 security.");
+    }
+    if( !$config->exists("authentication") && ($config->exists("wpa") || $config->exists("wpa2")) )
+    {
+        error("wpa/wpa2 security requires authentication.");
+    }
 
-        if( $config->exists("wpa") && $config->exists("wpa2") )
-        {
-            $auth_proto = "wpa+rsn";
-        }
-        elsif( $config->exists("wpa") )
-        {
-            $auth_proto = "wpa";
-        }
-        elsif( $config->exists("wpa2") )
-        {
-            $auth_proto = "rsn";
-        } else {
-            error("no security protocol set, you need to set either wpa or wpa2 or both under \"service anyfi gateway $instance\"")
+    my %security = ();
+
+    $security{"wpa"} = get_ciphers($config, "wpa") if ($config->exists("wpa"));
+    $security{"rsn"} = get_ciphers($config, "wpa2") if ($config->exists("wpa2"));
+
+    $config_string .= setup_auth_proto(join('+', keys %security) || "open");
+    foreach my $proto (keys %security)
+    {
+        my @ciphers = @{$security{$proto}};
+
+        if (scalar(@ciphers) == 0) {
+            error("must configure at least one $proto cipher.");
         }
 
-        $config_string .= setup_auth_proto($auth_proto);
-        my $wpa_ciphers = join("+", $config->returnValues("wpa ciphers"));
-        my $rsn_ciphers = join("+", $config->returnValues("wpa2 ciphers"));
-
-        if( $auth_proto eq "wpa+rsn" )
-        {
-            $config_string .= setup_ciphers($wpa_ciphers, "wpa") if $wpa_ciphers;
-            $config_string .= setup_ciphers($rsn_ciphers, "rsn") if $rsn_ciphers;
-        }
-        elsif( $auth_proto eq "wpa" )
-        {
-            $config_string .= setup_ciphers($wpa_ciphers, "wpa") if $wpa_ciphers;
-        }
-        elsif( $auth_proto eq "wpa2" )
-        {
-            $config_string .= setup_ciphers($rsn_ciphers, "rsn") if $rsn_ciphers;
-        }
-    } else {
-        if( $config->exists("wpa") || $config->exists("wpa2") )
-        {
-            error("wpa or wpa2 set without any authentication method, you need to set an authentication method under \"service anyfi gateway $instance authentication\"")
-        }      
+        $config_string .= setup_ciphers($proto, join('+', @ciphers));
     }
 
     # Isolation
