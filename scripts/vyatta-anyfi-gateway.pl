@@ -188,14 +188,14 @@ sub generate_config
     }
 
     # Rekey interval
-    my $rekey_interval = $config->returnValue("security rekey-interval");
+    my $rekey_interval = $config->returnValue("rekey-interval");
     if( $rekey_interval )
     {
         $config_string .= setup_rekey_interval($rekey_interval);
     }
 
     # Strict rekey
-    if( $config->exists("security strict-rekey") )
+    if( $config->exists("strict-rekey") )
     {
         $config_string .= setup_strict_rekey();
     }
