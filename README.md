@@ -3,13 +3,13 @@ Vyatta CLI for ANYFI GATEWAY
 
 # Goals and Objectives
 
-Provide a Vyatta (and EdgeOS) CLI for ANYFI GATEWAY, allowing for large scale
+Provide a Vyatta (and EdgeOS) CLI for Anyfi Gateway, allowing for large scale
 centralized ANY80211 tunnel termination.
 
 # Functional Specification
 
 The user will be able to distribute virtual Wi-Fi network (a.k.a. "service" in
-ANYFI terminology) from a gateway running the Vyatta Network OS. The virtual
+SDWN terminology) from a gateway running the Vyatta Network OS. The virtual
 network is configured with nearly identically to a physical access point: SSID,
 authentication protocol, cipher and so on.
 
@@ -43,20 +43,12 @@ For a more complete description see the
               radius-server <ipv4: RADIUS SERVER ADDRESS>
               radius-secret <txt: RADIUS SHARED SECRET>
               radius-port <int: RADIUS UDP PORT>
-              secondary
-                radius-server <ipv4: RADIUS SERVER ADDRESS>
-                radius-secret <txt: RADIUS SHARED SECRET>
-                radius-port <int: RADIUS UDP PORT>
             psk
               passphrase <txt: PRE-SHARED PASSPHRASE>
           authorization
             radius-server <ipv4: RADIUS SERVER ADDRESS>
             radius-secret <txt: RADIUS SHARED SECRET>
             radius-port <int: RADIUS UDP PORT>
-            secondary
-              radius-server <ipv4: RADIUS SERVER ADDRESS>
-              radius-secret <txt: RADIUS SHARED SECRET>
-              radius-port <int: RADIUS UDP PORT>
           accounting
             radius-server <ipv4: RADIUS SERVER ADDRESS>
             radius-secret <ipv4: RADIUS SHARED SECRET>
@@ -68,9 +60,6 @@ For a more complete description see the
           rekey-interval <int: INTERVAL>
           strict-rekey
           isolation             # Enable client device isolation.
-          optimize
-            arp                 # Rewrite ARP to unicast if possible.
-            dhcp                # Rewrite DHCP to unicast if possible.
           port-range <txt: UDP PORT RANGE TO USE FOR THIS SERVICE>
 
 # Operational Commands
