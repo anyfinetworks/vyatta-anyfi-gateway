@@ -61,7 +61,7 @@ For a more complete description see the
             radius-server <ipv4: RADIUS SERVER ADDRESS>
             radius-secret <ipv4: RADIUS SHARED SECRET>
             radius-port <int: RADIUS UDP PORT>
-            secondary
+            second
               radius-server <ipv4: RADIUS SERVER ADDRESS>
               radius-secret <txt: RADIUS SHARED SECRET>
               radius-port <int: RADIUS UDP PORT>

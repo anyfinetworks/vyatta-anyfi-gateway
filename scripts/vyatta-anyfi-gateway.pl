@@ -289,6 +289,26 @@ sub generate_config
         }
     }
 
+    # Second RADIUS accounting server
+    if( $config->exists("accounting second") )
+    {
+        my $primary_server = $config->returnValue("accounting second radius-server");
+        my $primary_port = $config->returnValue("accounting second radius-port");
+        my $primary_secret = $config->returnValue("accounting second radius-secret");
+        if( !defined($primary_server) )
+        {
+            error("Must specify second RADIUS server address!");
+        }
+        elsif( !defined($primary_secret) )
+        {
+            error("Must specify second RADIUS secret");
+        }
+        else
+        {
+            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "acct2");
+        }
+    }
+
     # Security protocol
     if( $config->exists("authentication psk") || $config->exists("authentication eap") )
     {
