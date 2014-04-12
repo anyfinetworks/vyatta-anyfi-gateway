@@ -1,0 +1,21 @@
+help: Restart gateway instance
+allowed: cli-shell-api listEffectiveNodes service anyfi gateway | sed -re s/\'//g
+run: if [ -f /var/run/anyfi-gateway-$4.pid ]; then
+         PID=$(sudo cat /var/run/anyfi-gateway-$4.pid 2> /dev/null)
+
+         CMDLINE=$(cat /proc/$PID/cmdline 2> /dev/null | tr '\00' ' ')
+
+         if echo $CMDLINE | grep -q "^/usr/sbin/anyfi-gateway"; then
+             echo -n "Stopping anyfi gateway:"
+             sudo kill -TERM $PID 2> /dev/null && sleep 1 && echo -n " anyfi-gateway"
+             echo "."
+
+             echo -n "Starting anyfi gateway:"
+             sudo sh -c "exec $CMDLINE" && echo -n " anyfi-gateway"
+             echo "."
+         else
+             echo "Error restarting anyfi gateway: don't know how to restart."
+         fi
+     else
+         echo "Error restarting anyfi gateway: no process running."
+     fi
