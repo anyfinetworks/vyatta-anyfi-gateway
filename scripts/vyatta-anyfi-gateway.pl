@@ -34,7 +34,7 @@ my $conf_dir = "/etc/";
 sub error
 {
     my $msg = shift;
-    print "Error configuring anyfi gateway: $msg\n";
+    print STDERR "Error configuring anyfi gateway: $msg\n";
     exit(1);
 }
 
@@ -172,11 +172,11 @@ sub generate_config
     my $bridge = $config->returnValue("bridge");
     if(! $bridge )
     {
-        error("Must specify Bridge");
+        error("must specify bridge.");
     }
     elsif (! check_bridge($bridge) )
     {
-        error("Bridge $bridge does not exist");
+        error("bridge $bridge does not exist.");
     }
     $config_string .= setup_bridge($bridge);
 
@@ -188,7 +188,7 @@ sub generate_config
     }
     else
     {
-        error("Must specify SSID");
+        error("must specify ssid.");
     }
 
     # UUID
@@ -214,7 +214,7 @@ sub generate_config
     # Authentication settings
     if( $config->exists("authentication eap") && $config->exists("authentication psk") )
     {
-        error("Can not configure both RADIUS and pre-shared key authentication at the same time!");
+        error("cannot configure both eap and psk authentication.");
     }
 
     if( $config->exists("authentication eap") )
@@ -226,11 +226,11 @@ sub generate_config
         my $primary_secret = $config->returnValue("authentication eap radius-secret");
         if( !defined($primary_server) )
         {
-            error("Must specify RADIUS server address in authentication!");
+            error("must specify radius authentication server address.");
         }
         elsif( !defined($primary_secret) )
         {
-            error("Must specify RADIUS secret in authentication");
+            error("must specify radius authentication secret.");
         }
         else
         {
@@ -242,11 +242,11 @@ sub generate_config
         my $passphrase = $config->returnValue("authentication psk passphrase");
         if( !defined($passphrase) )
         {
-            error("Must specify passphrase!");
+            error("must specify passphrase.");
         }
         elsif( length($passphrase) < 8 )
         {
-            error("Passphrase must be at least 8 characters long!");
+            error("passphrase must be at least 8 characters.");
         }
         else
         {
@@ -268,11 +268,11 @@ sub generate_config
         my $primary_secret = $config->returnValue("authorization radius-secret");
         if( !defined($primary_server) )
         {
-            error("Must specify primary RADIUS server address in authorization!");
+            error("must specify radius authorization server address.");
         }
         elsif( !defined($primary_secret) )
         {
-            error("Must specify primary RADIUS secret in authorization");
+            error("must specify radius authorization secret.");
         }
         else
         {
@@ -288,11 +288,11 @@ sub generate_config
         my $primary_secret = $config->returnValue("accounting radius-secret");
         if( !defined($primary_server) )
         {
-            error("Must specify primary RADIUS server address in accounting!");
+            error("must specify radius accounting server address.");
         }
         elsif( !defined($primary_secret) )
         {
-            error("Must specify primary RADIUS secret in accounting");
+            error("must specify radius accounting secret.");
         }
         else
         {
@@ -308,11 +308,11 @@ sub generate_config
         my $primary_secret = $config->returnValue("accounting second radius-secret");
         if( !defined($primary_server) )
         {
-            error("Must specify second RADIUS server address!");
+            error("must specify second radius accounting server address.");
         }
         elsif( !defined($primary_secret) )
         {
-            error("Must specify second RADIUS secret");
+            error("must specify second radius accounting secret.");
         }
         else
         {
@@ -369,7 +369,7 @@ sub apply_config
 {
     my ($instance, $config_file) = @_;
     my $config = generate_config($instance);
-    open(HANDLE, ">$config_file") || error("Could not open $config_file for write");
+    open(HANDLE, ">$config_file") || error("could not open $config_file for writing.");
     print HANDLE $config;
     close(HANDLE);
 }

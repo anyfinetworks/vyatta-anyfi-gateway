@@ -1,2 +1,2 @@
 type: txt
-help: RADIUS secret
+help: RADIUS secret [REQUIRED]

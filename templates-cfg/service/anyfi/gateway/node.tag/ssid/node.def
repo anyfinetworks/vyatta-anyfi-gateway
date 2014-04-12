@@ -1,2 +1,2 @@
 type: txt
-help: Service Set ID (SSID)
+help: Service Set Identifier [REQUIRED]
