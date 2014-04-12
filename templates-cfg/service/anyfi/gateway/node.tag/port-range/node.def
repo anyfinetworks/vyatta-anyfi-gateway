@@ -1,5 +1,5 @@
 type: txt
-help: UDP port range to listen on
-val_help: range; Port range, e.g. 2000-2010
+help: SDWN local port range
+val_help: range; Numbered UDP port range
 syntax:expression: pattern $VAR(@) "[0-9]+\-[0-9]+"
 
