@@ -131,6 +131,25 @@ sub setup_isolation
     return("isolation = 1\n");
 }
 
+sub setup_nas
+{
+    my $identifier = shift;
+    my $port = shift;
+    my $nas_string = "";
+
+    if( defined($identifier) )
+    {
+        $nas_string .= "radius_nas_id = $identifier\n";
+    }
+
+    if( defined($port) )
+    {
+        $nas_string .= "radius_nas_port = $port\n";
+    }
+
+    return($nas_string);
+}
+
 sub get_ciphers
 {
     my $config = shift;
@@ -315,6 +334,15 @@ sub generate_config
     if( $config->exists("isolation") )
     {
         $config_string .= setup_isolation();
+    }
+
+    # Network Access Server
+    if( $config->exists("nas") )
+    {
+        my $identifier = $config->returnValue("nas identifier");
+        my $port = $config->returnValue("nas port");
+
+        $config_string .= setup_nas($identifier, $port);
     }
 
     return($config_string);
