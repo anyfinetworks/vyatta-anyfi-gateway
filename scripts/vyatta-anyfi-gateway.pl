@@ -115,13 +115,11 @@ sub setup_radius_server
     my $port = shift;
     my $secret = shift;
     my $role = shift; # auth/acct/autz
+    my $radius_string = "";
 
-    my $radius_string = "radius_" . $role . "_server = $server\n";
+    $radius_string .= "radius_" . $role . "_server = $server\n";
 
-    if( defined($port) )
-    {
-        $radius_string .= "radius_" . $role . "_port = $port\n";
-    }
+    $radius_string .= "radius_" . $role . "_port = $port\n";
 
     $radius_string .= "radius_" . $role . "_secret = $secret\n";
 
@@ -205,20 +203,19 @@ sub generate_config
     {
         $config_string .= setup_auth_mode("eap");
 
-        my $primary_server = $config->returnValue("authentication eap radius-server");
-        my $primary_port = $config->returnValue("authentication eap radius-port");
-        my $primary_secret = $config->returnValue("authentication eap radius-secret");
-        if( !defined($primary_server) )
+        my @servers = $config->listNodes("authentication eap radius-server");
+
+        if( scalar(@servers) != 1 )
         {
-            error("must specify radius authentication server address.");
-        }
-        elsif( !defined($primary_secret) )
-        {
-            error("must specify radius authentication secret.");
+            error("must specify exactly one radius authentication server.");
         }
         else
         {
-            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "auth");
+            my $server = shift(@servers);
+            my $port = $config->returnValue("authentication eap radius-server $server port");
+            my $secret = $config->returnValue("authentication eap radius-server $server secret");
+
+            $config_string .= setup_radius_server($server, $port, $secret, "auth");
         }
     }
     elsif( $config->exists("authentication psk") )
@@ -247,60 +244,42 @@ sub generate_config
     # Authorization
     if( $config->exists("authorization") )
     {
-        my $primary_server = $config->returnValue("authorization radius-server");
-        my $primary_port = $config->returnValue("authorization radius-port");
-        my $primary_secret = $config->returnValue("authorization radius-secret");
-        if( !defined($primary_server) )
+        my @servers = $config->listNodes("authorization radius-server");
+
+        if( scalar(@servers) != 1 )
         {
-            error("must specify radius authorization server address.");
-        }
-        elsif( !defined($primary_secret) )
-        {
-            error("must specify radius authorization secret.");
+            error("must specify exactly one radius authorization server.");
         }
         else
         {
-            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "autz");
+            my $server = shift(@servers);
+            my $port = $config->returnValue("authorization radius-server $server port");
+            my $secret = $config->returnValue("authorization radius-server $server secret");
+
+            $config_string .= setup_radius_server($server, $port, $secret, "autz");
         }
     }
 
     # Accounting settings
     if( $config->exists("accounting") )
     {
-        my $primary_server = $config->returnValue("accounting radius-server");
-        my $primary_port = $config->returnValue("accounting radius-port");
-        my $primary_secret = $config->returnValue("accounting radius-secret");
-        if( !defined($primary_server) )
-        {
-            error("must specify radius accounting server address.");
-        }
-        elsif( !defined($primary_secret) )
-        {
-            error("must specify radius accounting secret.");
-        }
-        else
-        {
-            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "acct");
-        }
-    }
+        my @servers = $config->listNodes("accounting radius-server");
 
-    # Second RADIUS accounting server
-    if( $config->exists("accounting second") )
-    {
-        my $primary_server = $config->returnValue("accounting second radius-server");
-        my $primary_port = $config->returnValue("accounting second radius-port");
-        my $primary_secret = $config->returnValue("accounting second radius-secret");
-        if( !defined($primary_server) )
+	if( scalar(@servers) < 1 || scalar(@servers) > 2 )
         {
-            error("must specify second radius accounting server address.");
-        }
-        elsif( !defined($primary_secret) )
-        {
-            error("must specify second radius accounting secret.");
+            error("must specify 1-2 radius accounting servers.");
         }
         else
         {
-            $config_string .= setup_radius_server($primary_server, $primary_port, $primary_secret, "acct2");
+            my @names = ("acct", "acct2");
+
+            foreach my $server (@servers)
+            {
+                my $port = $config->returnValue("accounting radius-server $server port");
+                my $secret = $config->returnValue("accounting radius-server $server secret");
+
+                $config_string .= setup_radius_server($server, $port, $secret, shift(@names));
+            }
         }
     }
 
