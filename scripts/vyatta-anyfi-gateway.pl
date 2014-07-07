@@ -19,9 +19,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# XXX: At the moment "service anyfi gateway $VAR(@) port-range"
-# is handled in the templates and is not reflected here in any way
-
 use lib "/opt/vyatta/share/perl5/";
 
 use strict;
@@ -29,24 +26,11 @@ use warnings;
 use Vyatta::Config;
 use Getopt::Long;
 
-my $conf_dir = "/etc/";
-
 sub error
 {
     my $msg = shift;
     print STDERR "Error configuring anyfi gateway: $msg\n";
     exit(1);
-}
-
-sub setup_port_range
-{
-    # Port range
-    # XXX: at this point only the first port is actually used
-    
-    my $port_range = shift;
-    my $port_range_string .= "bind_port = $port_range \n";
-
-    return($port_range_string);
 }
 
 sub setup_bridge
