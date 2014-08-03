@@ -260,7 +260,7 @@ sub generate_config
             $config_string .= setup_passphrase($passphrase);
         }
     }
-    if( $config->exists("authentication mac") )
+    elsif( $config->exists("authentication mac") )
     {
 
         $config_string .= setup_auth_mode("open");
