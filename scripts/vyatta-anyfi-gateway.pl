@@ -213,14 +213,13 @@ sub generate_config
     }
 
     # Authentication settings
+    if( $config->exists("authentication eap") && $config->exists("authentication psk") )
+    {
+        error("cannot configure both eap and psk authentication.");
+    }
 
     if( $config->exists("authentication eap") )
     {
-        if( $config->exists("authentication mac") || $config->exists("authentication psk") )
-        {
-            error("cannot configure more than one authentication mode.");
-        }
-
         $config_string .= setup_auth_mode("eap");
 
         my @servers = $config->listNodes("authentication eap radius-server");
@@ -240,11 +239,6 @@ sub generate_config
     }
     elsif( $config->exists("authentication psk") )
     {
-        if( $config->exists("authentication mac") )
-        {
-            error("cannot configure more than one authentication mode.");
-        }
-
         my $passphrase = $config->returnValue("authentication psk passphrase");
         if( !defined($passphrase) )
         {
@@ -260,30 +254,29 @@ sub generate_config
             $config_string .= setup_passphrase($passphrase);
         }
     }
-    if( $config->exists("authentication mac") )
-    {
-
-        $config_string .= setup_auth_mode("open");
-
-        my @servers = $config->listNodes("authentication mac radius-server");
-
-        if( scalar(@servers) != 1 )
-        {
-            error("must specify exactly one radius mac authentication server.");
-        }
-        else
-        {
-            my $server = shift(@servers);
-            my $port = $config->returnValue("authentication mac radius-server $server port");
-            my $secret = $config->returnValue("authentication mac radius-server $server secret");
-
-            $config_string .= setup_radius_server($server, $port, $secret, "autz");
-        }
-    }
     else
     {
         # Implicit default to open
         $config_string .= setup_auth_proto("open");
+    }
+
+    # Authorization
+    if( $config->exists("authorization") )
+    {
+        my @servers = $config->listNodes("authorization radius-server");
+
+        if( scalar(@servers) != 1 )
+        {
+            error("must specify exactly one radius authorization server.");
+        }
+        else
+        {
+            my $server = shift(@servers);
+            my $port = $config->returnValue("authorization radius-server $server port");
+            my $secret = $config->returnValue("authorization radius-server $server secret");
+
+            $config_string .= setup_radius_server($server, $port, $secret, "autz");
+        }
     }
 
     # Accounting settings
@@ -291,34 +284,33 @@ sub generate_config
     {
         my @servers = $config->listNodes("accounting radius-server");
 
-        if( scalar(@servers) != 1 )
+	if( scalar(@servers) < 1 || scalar(@servers) > 2 )
         {
-            error("must specify exactly one radius accounting server.");
+            error("must specify 1-2 radius accounting servers.");
         }
         else
         {
-            my $server = shift(@servers);
-            my $port = $config->returnValue("accounting radius-server $server port");
-            my $secret = $config->returnValue("accounting radius-server $server secret");
+            my @names = ("acct", "acct2");
 
-            $config_string .= setup_radius_server($server, $port, $secret, "acct");
+            foreach my $server (@servers)
+            {
+                my $port = $config->returnValue("accounting radius-server $server port");
+                my $secret = $config->returnValue("accounting radius-server $server secret");
+
+                $config_string .= setup_radius_server($server, $port, $secret, shift(@names));
+            }
         }
     }
 
     # WPA/WPA2 Security
 
-    if( $config->exists("authentication eap") && !($config->exists("wpa") || $config->exists("wpa2")) )
+    if( $config->exists("authentication") && !($config->exists("wpa") || $config->exists("wpa2")) )
     {
-        error("eap authentication requires wpa or wpa2 security.");
+        error("authentication requires wpa or wpa2 security.");
     }
-    if( $config->exists("authentication psk") && !($config->exists("wpa") || $config->exists("wpa2")) )
+    if( !$config->exists("authentication") && ($config->exists("wpa") || $config->exists("wpa2")) )
     {
-        error("psk authentication requires wpa or wpa2 security.");
-    }
-    if( !$config->exists("authentication eap") && !$config->exists("authentication psk") &&
-        ($config->exists("wpa") || $config->exists("wpa2")) )
-    {
-        error("wpa/wpa2 security requires eap or psk authentication.");
+        error("wpa/wpa2 security requires authentication.");
     }
 
     my %security = ();
