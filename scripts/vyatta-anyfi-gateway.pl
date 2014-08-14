@@ -213,7 +213,6 @@ sub generate_config
     }
 
     # Authentication settings
-
     if( $config->exists("authentication eap") )
     {
         if( $config->exists("authentication mac") || $config->exists("authentication psk") )
@@ -262,9 +261,6 @@ sub generate_config
     }
     elsif( $config->exists("authentication mac") )
     {
-
-        $config_string .= setup_auth_mode("open");
-
         my @servers = $config->listNodes("authentication mac radius-server");
 
         if( scalar(@servers) != 1 )
@@ -279,11 +275,6 @@ sub generate_config
 
             $config_string .= setup_radius_server($server, $port, $secret, "autz");
         }
-    }
-    else
-    {
-        # Implicit default to open
-        $config_string .= setup_auth_proto("open");
     }
 
     # Accounting settings
