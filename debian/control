@@ -11,7 +11,7 @@ Depends: vyatta-cfg-system,
  vyatta-cfg,
  vyatta-op,
  vyatta-anyfi-common,
- anyfi-gateway,
+ anyfi-gateway (>= 1.7.0),
  ${misc:Depends}
 Replaces: vyatta-anyfi-gateway
 Description: Vyatta integration for Anyfi Gateway
