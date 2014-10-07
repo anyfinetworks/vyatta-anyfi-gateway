@@ -23,11 +23,9 @@ end:
 
      # Stop the old daemon
      if [ ${COMMIT_ACTION} == ACTIVE ] || [ ${COMMIT_ACTION} == DELETE ]; then
-         if [ -f /var/run/anyfi-gateway-$VAR(@).pid ]; then
-             echo -n "Stopping anyfi gateway:"
-             sudo kill -TERM $(sudo cat /var/run/anyfi-gateway-$VAR(@).pid)
-             echo " anyfi-gateway."
-         fi
+         echo -n "Stopping anyfi gateway:"
+         sudo /opt/vyatta/sbin/vyatta-anyfi-stop-daemon /var/run/anyfi-gateway-$VAR(@).pid && \
+             echo " anyfi-gateway." || echo " [E anyfi-gateway]."
      fi
 
      # Start a new daemon
