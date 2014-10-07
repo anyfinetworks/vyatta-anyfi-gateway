@@ -10,8 +10,8 @@ Architecture: all
 Depends: vyatta-cfg-system,
  vyatta-cfg,
  vyatta-op,
- vyatta-anyfi-common,
- anyfi-gateway,
+ vyatta-anyfi-common (>= 1.0.1),
+ anyfi-gateway (>= 1.5.0),
  ${misc:Depends}
 Replaces: vyatta-anyfi-gateway
 Description: Vyatta integration for Anyfi Gateway

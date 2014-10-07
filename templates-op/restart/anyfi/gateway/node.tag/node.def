@@ -7,7 +7,8 @@ run: if [ -f /var/run/anyfi-gateway-$4.pid ]; then
 
          if echo $CMDLINE | grep -q "^/usr/sbin/anyfi-gateway"; then
              echo -n "Stopping anyfi gateway:"
-             sudo kill -TERM $PID 2> /dev/null && sleep 1 && echo -n " anyfi-gateway"
+             sudo /opt/vyatta/sbin/vyatta-anyfi-stop-daemon /var/run/anyfi-gateway-$4.pid && \
+                 echo -n " anyfi-gateway" || echo -n " [E anyfi-gateway]"
              echo "."
 
              echo -n "Starting anyfi gateway:"
