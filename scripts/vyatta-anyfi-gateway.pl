@@ -284,21 +284,17 @@ sub generate_config
     {
         my @servers = $config->listNodes("accounting radius-server");
 
-        if( scalar(@servers) < 1 || scalar(@servers) > 2 )
+        if( scalar(@servers) != 1 )
         {
-            error("must specify 1-2 radius accounting servers.");
+            error("must specify exactly one radius accounting server.");
         }
         else
         {
-            my @names = ("acct", "acct2");
+            my $server = shift(@servers);
+            my $port = $config->returnValue("accounting radius-server $server port");
+            my $secret = $config->returnValue("accounting radius-server $server secret");
 
-            foreach my $server (@servers)
-            {
-                my $port = $config->returnValue("accounting radius-server $server port");
-                my $secret = $config->returnValue("accounting radius-server $server secret");
-
-                $config_string .= setup_radius_server($server, $port, $secret, shift(@names));
-            }
+            $config_string .= setup_radius_server($server, $port, $secret, "acct");
         }
     }
 
