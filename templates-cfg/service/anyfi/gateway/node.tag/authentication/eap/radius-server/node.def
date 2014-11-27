@@ -1,5 +1,5 @@
 tag:
 type: ipv4
 help: Radius authentication server [REQUIRED]
-commit:expression: $VAR(port) != "" && $VAR(secret) != ""
-                     ; "Port, secret must be specified for Radius server"
+commit:expression: $VAR(secret) != ""
+                     ; "Error configuring Radius: must specify secret."
