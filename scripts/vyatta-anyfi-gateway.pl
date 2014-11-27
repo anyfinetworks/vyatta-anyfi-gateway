@@ -263,6 +263,11 @@ sub generate_config
     # Authorization
     if( $config->exists("authorization") )
     {
+        if( $config->exists("authentication eap") )
+        {
+            error("cannot configure both eap authentication and radius authorization.");
+        }
+
         my @servers = $config->listNodes("authorization radius-server");
 
         if( scalar(@servers) != 1 )
