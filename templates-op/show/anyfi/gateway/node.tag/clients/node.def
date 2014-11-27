@@ -1,0 +1,2 @@
+help: List connected clients
+run: sudo /usr/sbin/anyfi-gatewayctl -c /var/run/myfidsock.$(sudo cat /var/run/anyfi-gateway-$4.pid) clients
