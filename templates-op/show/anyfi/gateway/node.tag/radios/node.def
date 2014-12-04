@@ -1,2 +1,0 @@
-help: List connected radios
-run: sudo /usr/sbin/anyfi-gatewayctl -c /var/run/myfidsock.$(sudo cat /var/run/anyfi-gateway-$4.pid) radios
