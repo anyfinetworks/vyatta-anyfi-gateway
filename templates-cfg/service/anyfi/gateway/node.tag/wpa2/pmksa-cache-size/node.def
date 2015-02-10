@@ -1,0 +1,5 @@
+type: u32
+help: PMK Security Association (PMKSA) cache size
+val_help: u32:1-32; Number of cached keys per STA
+syntax:expression: $VAR(@) >= 0 && $VAR(@) <= 32; \
+       "PMKSA cache size must be between 0 and 32."

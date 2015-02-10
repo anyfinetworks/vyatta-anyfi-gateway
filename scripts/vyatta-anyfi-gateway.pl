@@ -84,8 +84,25 @@ sub setup_auth_proto
 
 sub setup_auth_mode
 {
-    my $auth_mode = shift;
-    my $auth_mode_string = "auth_mode = $auth_mode \n";
+    my $base_mode = shift;
+    my $config = shift;
+    my @auth_modes = ();
+    my $auth_mode_string = "";
+
+    if( $config->exists("wpa2 key-derivation") ) {
+        if( !$config->exists("wpa2 key-derivation sha1") && !$config->exists("wpa2 key-derivation sha256") ) {
+            error("must configure at least one WPA2 key derivation method");
+        }
+        push(@auth_modes, $base_mode) if $config->exists("wpa2 key-derivation sha1");
+        push(@auth_modes, $base_mode . "256") if $config->exists("wpa2 key-derivation sha256");
+    }
+    else
+    {
+        # Default to SHA1 key derivation
+        push(@auth_modes, $base_mode);
+    }
+
+    $auth_mode_string .= sprintf("auth_mode = %s \n", join('+', @auth_modes));
 
     return($auth_mode_string);
 }
@@ -237,7 +254,7 @@ sub generate_config
 
     if( $config->exists("authentication eap") )
     {
-        $config_string .= setup_auth_mode("eap");
+        $config_string .= setup_auth_mode("eap", $config);
 
         my @servers = $config->listNodes("authentication eap radius-server");
 
@@ -253,6 +270,12 @@ sub generate_config
 
             $config_string .= setup_radius_server($server, $port, $secret, "auth");
         }
+
+        if( $config->exists("wpa2 pmksa-cache-size") ) {
+            my $pmksa_cache_size = $config->returnValue("wpa2 pmksa-cache-size");
+
+            $config_string .= "auth_cache = $pmksa_cache_size \n";
+        }
     }
     elsif( $config->exists("authentication psk") )
     {
@@ -265,9 +288,13 @@ sub generate_config
         {
             error("passphrase must be at least 8 characters.");
         }
+        elsif( $config->exists("wpa2 pmksa-cache-size") )
+        {
+            error("PMKSA caching requires EAP authentication");
+        }
         else
         {
-            $config_string .= setup_auth_mode("psk");
+            $config_string .= setup_auth_mode("psk", $config);
             $config_string .= setup_passphrase($passphrase);
         }
     }
