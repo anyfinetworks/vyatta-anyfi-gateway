@@ -1,0 +1,6 @@
+type: u32
+help: FT mobility domain
+val_help: u32:1-65535; Mobility domain
+syntax:expression: $VAR(@) >= 1 && $VAR(@) <= 65535; \
+       "FT mobility domain must be between 1 and 65535."
+default: 1

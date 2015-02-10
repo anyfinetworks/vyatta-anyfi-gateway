@@ -101,6 +101,23 @@ sub setup_ciphers
     return($ciphers_string);
 }
 
+sub setup_ft
+{
+    my $mobility_domain = shift;
+    my $reassociation_timeout = shift;
+    my $over_the_ds = shift;
+    my $ft_string = "";
+
+    $ft_string .= "ft_mobility_domain = $mobility_domain\n";
+    $ft_string .= "ft_reassoc_timeout = $reassociation_timeout\n";
+
+    if ($over_the_ds) {
+        $ft_string .= "ft_over_ds = 1\n";
+    }
+ 
+    return($ft_string);
+}
+
 sub setup_passphrase
 {
     my $passphrase = shift;
@@ -303,15 +320,17 @@ sub generate_config
         }
     }
 
-    # WPA/WPA2 Security
+    # WPA/WPA2/FT Security
 
-    if( $config->exists("authentication") && !($config->exists("wpa") || $config->exists("wpa2")) )
+    if( $config->exists("authentication") &&
+        !($config->exists("wpa") || $config->exists("wpa2") || $config->exists("ft")) )
     {
-        error("authentication requires wpa or wpa2 security.");
+        error("authentication requires wpa, wpa2 or ft security.");
     }
-    if( !$config->exists("authentication") && ($config->exists("wpa") || $config->exists("wpa2")) )
+    if( !$config->exists("authentication") &&
+        ($config->exists("wpa") || $config->exists("wpa2") || $config->exists("ft")) )
     {
-        error("wpa/wpa2 security requires authentication.");
+        error("wpa/wpa2/ft security requires authentication.");
     }
 
     my %security = ();
@@ -319,7 +338,16 @@ sub generate_config
     $security{"wpa"} = get_ciphers($config, "wpa") if ($config->exists("wpa"));
     $security{"rsn"} = get_ciphers($config, "wpa2") if ($config->exists("wpa2"));
 
-    $config_string .= setup_auth_proto(join('+', keys %security) || "open");
+    my @auth_protos = keys %security;
+
+    if( $config->exists("ft") ) {
+        push(@auth_protos, "ft");
+        if( !$config->exists("wpa2") ) {
+            $security{"rsn"} = ("ccmp");
+        }
+    }
+
+    $config_string .= setup_auth_proto(join('+', @auth_protos) || "open");
     foreach my $proto (keys %security)
     {
         my @ciphers = @{$security{$proto}};
@@ -329,6 +357,18 @@ sub generate_config
         }
 
         $config_string .= setup_ciphers($proto, join('+', @ciphers));
+    }
+
+    if( $config->exists("wpa2 preauthentication") ) {
+        $config_string .= "rsn_preauth = 1\n";
+    }
+
+    if( $config->exists("ft") ) {
+        my $mobility_domain = $config->returnValue("ft mobility-domain");
+        my $reassocation_timeout = $config->returnValue("ft reassociation-timeout");
+        my $over_the_ds = $config->exists("ft over-the-ds");
+
+        $config_string .= setup_ft($mobility_domain, $reassocation_timeout, $over_the_ds);
     }
 
     # Isolation

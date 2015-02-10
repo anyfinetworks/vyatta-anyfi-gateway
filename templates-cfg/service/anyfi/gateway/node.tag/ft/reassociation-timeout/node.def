@@ -1,0 +1,6 @@
+type: u32
+help: FT reassociation timeout
+val_help: u32:1-100; Timeout in seconds
+syntax:expression: $VAR(@) >= 1 && $VAR(@) <= 100; \
+       "FT reassociation timeout must be between 1 and 100 seconds."
+default: 50
