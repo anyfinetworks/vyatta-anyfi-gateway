@@ -370,7 +370,8 @@ sub generate_config
     if( $config->exists("ft") ) {
         push(@auth_protos, "ft");
         if( !$config->exists("wpa2") ) {
-            $security{"rsn"} = ("ccmp");
+            my @ft_ciphers = ("ccmp");
+            $security{"rsn"} = \@ft_ciphers;
         }
     }
 
