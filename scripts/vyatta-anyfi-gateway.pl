@@ -237,12 +237,20 @@ sub generate_config
     my $rekey_interval = $config->returnValue("rekey-interval");
     if( $rekey_interval )
     {
+        if( !$config->exists("wpa") && !$config->exists("wpa2") && !$config->exists("ft") )
+        {
+            error("rekey interval requires wpa, wpa2 or ft security.");
+        }
         $config_string .= setup_rekey_interval($rekey_interval);
     }
 
     # Strict rekey
     if( $config->exists("strict-rekey") )
     {
+        if( !$config->exists("wpa") && !$config->exists("wpa2") && !$config->exists("ft") )
+        {
+            error("strict rekeying requires wpa, wpa2 or ft security.");
+        }
         $config_string .= setup_strict_rekey();
     }
 
