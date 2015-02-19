@@ -89,8 +89,10 @@ sub setup_auth_mode
     my @auth_modes = ();
     my $auth_mode_string = "";
 
-    if( $config->exists("wpa2 key-derivation") ) {
-        if( !$config->exists("wpa2 key-derivation sha1") && !$config->exists("wpa2 key-derivation sha256") ) {
+    if( $config->exists("wpa2 key-derivation") )
+    {
+        if( !$config->exists("wpa2 key-derivation sha1") && !$config->exists("wpa2 key-derivation sha256") )
+        {
             error("must configure at least one WPA2 key derivation method");
         }
         push(@auth_modes, $base_mode) if $config->exists("wpa2 key-derivation sha1");
@@ -128,7 +130,8 @@ sub setup_ft
     $ft_string .= "ft_mobility_domain = $mobility_domain\n";
     $ft_string .= "ft_reassoc_timeout = $reassociation_timeout\n";
 
-    if ($over_the_ds) {
+    if ($over_the_ds)
+    {
         $ft_string .= "ft_over_ds = 1\n";
     }
  
@@ -279,7 +282,8 @@ sub generate_config
             $config_string .= setup_radius_server($server, $port, $secret, "auth");
         }
 
-        if( $config->exists("wpa2 pmksa-cache-size") ) {
+        if( $config->exists("wpa2 pmksa-cache-size") )
+        {
             my $pmksa_cache_size = $config->returnValue("wpa2 pmksa-cache-size");
 
             $config_string .= "auth_cache = $pmksa_cache_size \n";
@@ -370,9 +374,11 @@ sub generate_config
 
     my @auth_protos = keys %security;
 
-    if( $config->exists("ft") ) {
+    if( $config->exists("ft") )
+    {
         push(@auth_protos, "ft");
-        if( !$config->exists("wpa2") ) {
+        if( !$config->exists("wpa2") )
+        {
             my @ft_ciphers = ("ccmp");
             $security{"rsn"} = \@ft_ciphers;
         }
@@ -383,18 +389,21 @@ sub generate_config
     {
         my @ciphers = @{$security{$proto}};
 
-        if (scalar(@ciphers) == 0) {
+        if (scalar(@ciphers) == 0)
+        {
             error("must configure at least one $proto cipher.");
         }
 
         $config_string .= setup_ciphers($proto, join('+', @ciphers));
     }
 
-    if( $config->exists("wpa2 preauthentication") ) {
+    if( $config->exists("wpa2 preauthentication") )
+    {
         $config_string .= "rsn_preauth = 1\n";
     }
 
-    if( $config->exists("ft") ) {
+    if( $config->exists("ft") )
+    {
         my $mobility_domain = $config->returnValue("ft mobility-domain");
         my $reassocation_timeout = $config->returnValue("ft reassociation-timeout");
         my $over_the_ds = $config->exists("ft over-the-ds");
