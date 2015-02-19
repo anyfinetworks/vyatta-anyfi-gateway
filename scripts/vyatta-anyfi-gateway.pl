@@ -298,11 +298,6 @@ sub generate_config
             $config_string .= setup_passphrase($passphrase);
         }
     }
-    else
-    {
-        # Implicit default to open
-        $config_string .= setup_auth_proto("open");
-    }
 
     # Authorization
     if( $config->exists("authorization") )
