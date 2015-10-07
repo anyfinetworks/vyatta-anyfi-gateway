@@ -171,12 +171,18 @@ sub setup_isolation
 sub setup_nas
 {
     my $identifier = shift;
+    my $ipaddr = shift;
     my $port = shift;
     my $nas_string = "";
 
     if( defined($identifier) )
     {
         $nas_string .= "nas_identifier = $identifier\n";
+    }
+
+    if( defined($ipaddr) )
+    {
+        $nas_string .= "nas_ip_address = $ipaddr\n";
     }
 
     if( defined($port) )
@@ -421,9 +427,10 @@ sub generate_config
     if( $config->exists("nas") )
     {
         my $identifier = $config->returnValue("nas identifier");
+        my $ipaddr = $config->returnValue("nas ip-address");
         my $port = $config->returnValue("nas port");
 
-        $config_string .= setup_nas($identifier, $port);
+        $config_string .= setup_nas($identifier, $ipaddr, $port);
     }
 
     return($config_string);
