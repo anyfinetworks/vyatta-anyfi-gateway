@@ -176,12 +176,12 @@ sub setup_nas
 
     if( defined($identifier) )
     {
-        $nas_string .= "radius_nas_id = $identifier\n";
+        $nas_string .= "nas_identifier = $identifier\n";
     }
 
     if( defined($port) )
     {
-        $nas_string .= "radius_nas_port = $port\n";
+        $nas_string .= "nas_port = $port\n";
     }
 
     return($nas_string);
