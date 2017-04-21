@@ -11,7 +11,7 @@ Depends: vyatta-cfg-system,
  vyatta-cfg,
  vyatta-op,
  vyatta-anyfi-common (>= 1.1.1),
- anyfi-radius-dynauth (>= 1.0.0)
+ anyfi-radius-dynauth (>= 1.0.0),
  anyfi-gateway (>= 1.9.0),
  ${misc:Depends}
 Replaces: vyatta-anyfi-gateway
