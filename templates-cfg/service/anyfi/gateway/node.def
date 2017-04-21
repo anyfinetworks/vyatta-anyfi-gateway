@@ -21,11 +21,16 @@ end:
                  --config=/etc/anyfi-gateway-$VAR(@).conf || exit 1
      fi
 
+     if [ ${COMMIT_ACTION} == DELETE ]; then
+         sudo rm -f /etc/anyfi-gateway-$VAR(@).conf
+     fi
+
      # Stop the old daemon
      if [ ${COMMIT_ACTION} == ACTIVE ] || [ ${COMMIT_ACTION} == DELETE ]; then
          echo -n "Stopping anyfi gateway:"
          sudo /opt/vyatta/sbin/vyatta-anyfi-stop-daemon /var/run/anyfi-gateway-$VAR(@).pid && \
              echo " anyfi-gateway." || echo " [E anyfi-gateway]."
+         sudo sh -c "killall -HUP anyfi-radius-dynauth.pl 2>/dev/null"
      fi
 
      # Start a new daemon
@@ -46,6 +51,13 @@ end:
 
          echo -n "Starting anyfi gateway:"
          sudo /usr/sbin/anyfi-gateway --accept-license $args || exit 1
-         echo " anyfi-gateway."
+         echo -n " anyfi-gateway"
+
+         if ! sudo sh -c "killall -HUP anyfi-radius-dynauth.pl 2>/dev/null"
+         then
+             sudo /usr/sbin/anyfi-radius-dynauth.pl || exit 1
+             echo -n " anyfi-radius-dynauth.pl"
+         fi
+         echo "."
      fi
 

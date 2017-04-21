@@ -13,6 +13,12 @@ run: if [ -f /var/run/anyfi-gateway-$4.pid ]; then
 
              echo -n "Starting anyfi gateway:"
              sudo sh -c "exec $CMDLINE" && echo -n " anyfi-gateway"
+
+             if ! sudo sh -c "killall -HUP anyfi-radius-dynauth.pl 2>/dev/null"
+             then
+                 sudo /usr/sbin/anyfi-radius-dynauth.pl
+                 echo -n " anyfi-radius-dynauth.pl"
+             fi
              echo "."
          else
              echo "Error restarting anyfi gateway: don't know how to restart."
